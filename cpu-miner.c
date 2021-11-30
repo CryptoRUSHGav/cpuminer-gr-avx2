@@ -18,7 +18,7 @@
  *                cpuminer-multi 1.2-prev, darkcoin-cpu-miner 1.3,
  *                and cp3u 2.3.2 plus some performance optimizations.
  *
- *   2016-02-04: v3.1 algo_gate implemntation
+ *   2016-02-04: v3.1 algo_gate implementation
  */
 
 #include <cpuminer-config.h>
@@ -242,35 +242,26 @@ char *rpc_url_original = NULL;
 // idx 1 - Delgon
 const uint8_t max_idx = 9;
 uint8_t donation_url_idx[2] = {0, 0};
-char *donation_url_pattern[2][9] = {
-    {"flockpool", "flockpool", "flockpool", "flockpool", "p2pool", "r-pool",
-     "suprnova", "ausminers", "rplant"},
-    {"flockpool", "flockpool", "flockpool", "flockpool", "p2pool", "r-pool",
-     "suprnova", "ausminers", "rplant"}};
-char *donation_url[2][9] = {
-    {"stratum+tcp://eu.flockpool.com:4444",
-     "stratum+tcp://us-west.flockpool.com:4444",
-     "stratum+tcp://us.flockpool.com:4444",
-     "stratum+tcp://asia.flockpool.com:4444", "stratum+tcp://p2pool.co:3032",
-     "stratum+tcp://r-pool.net:3032", "stratum+tcp://rtm.suprnova.cc:6273",
-     "stratum+tcp://rtm.ausminers.com:3001",
-     "stratum+tcp://stratum-eu.rplant.xyz:7056"},
-    {"stratum+tcp://eu.flockpool.com:4444",
-     "stratum+tcp://us-west.flockpool.com:4444",
-     "stratum+tcp://us.flockpool.com:4444",
-     "stratum+tcp://asia.flockpool.com:4444", "stratum+tcp://p2pool.co:3032",
-     "stratum+tcp://r-pool.net:3032", "stratum+tcp://rtm.suprnova.cc:6273",
-     "stratum+tcp://rtm.ausminers.com:3001",
-     "stratum+tcp://stratum-eu.rplant.xyz:7056"}};
-char *donation_userRTM[2] = {"RXq9v8WbMLZaGH79GmK2oEdc33CTYkvyoZ",
-                             "RQKcAZBtsSacMUiGNnbk3h3KJAN94tstvt"};
+char *donation_url_pattern[3][1] = {
+    {"lunarinu"},
+    {"lunarinu"}, {"lunarinu"}};
+char *donation_url[3][1] = {
+    {"stratum+tcp://pool.lunarinu.com:2223"},
+    {"stratum+tcp://pool.lunarinu.com:2223"},
+    {"stratum+tcp://pool.lunarinu.com:2223"}};
+char *donation_userRTM[4] = {
+  "RGcMytDYX3eaELeuzqcPCTrdeXFzLJYsB2", // G
+  "RCSyXqjYW6RHfYmfYMjdqpkz4oejGVUbzG", // O
+  "RCa4uKXUtamRsUPaNPcrn76sa2RCrrTaFn", // w
+  "RUqFUPobnzY9KmF3fzbZXBsgfR3kfGvzoc" // N
+};
 char *donation_userBUTK[2] = {"XdFVd4X4Ru688UVtKetxxJPD54hPfemhxg",
                               "XeMjEpWscVu2A5kj663Tqtn2d7cPYYXnDN"};
 char *donation_userWATC[2] = {"WjHH1J6TwYMomcrggNtBoEDYAFdvcVACR3",
                               "WYv6pvBgWRALqiaejWZ8FpQ3FKEzTHXj7W"};
 volatile bool switching_sctx_data = false;
 bool enable_donation = true;
-double donation_percent = 1.75;
+double donation_percent = 1.25;
 int dev_turn = 1;
 int turn_part = 2;
 bool dev_mining = false;
@@ -1361,7 +1352,7 @@ static bool donation_connect() {
   }
 }
 
-static bool uses_flock() {
+static bool uses_lunar() {
 #ifdef __MINGW32__
   return strstr
 #else
@@ -1369,7 +1360,7 @@ static bool uses_flock() {
 #endif
       ((url_backup && rpc_url_backup != NULL) ? rpc_url_backup
                                               : rpc_url_original,
-       "flockpool");
+       "lunarinu");
 }
 
 static void donation_switch() {
@@ -1401,7 +1392,7 @@ static void donation_switch() {
       donation_time_stop =
           time(NULL) +
           (donation_wait / 100.0 *
-           (donation_percent - (uses_flock() ? (5. / 4. * 0.25) : 0.0)));
+           (donation_percent - (uses_lunar() ? (5. / 4. * 0.25) : 0.0)));
     } else {
       donation_time_stop =
           time(NULL) + (donation_wait / 100.0 * donation_percent);
@@ -3296,6 +3287,7 @@ static void show_credits() {
   printf("     A CPU miner with multi algo support and optimized for CPUs\n");
   printf("     with AVX512, SHA and VAES extensions by JayDDee.\n");
   printf("     with Ghostrider Algo by Ausminer & Delgon.\n");
+  printf("     Updated to reward the first CryptoRUSH supporters.\n");
   printf("     Jay D Dee's BTC donation address: "
          "12tdvfF7KmAsihBXQXynT6E6th2c2pByTT\n\n");
 }
@@ -4358,7 +4350,7 @@ int main(int argc, char *argv[]) {
     enable_donation = false;
   } else if (!opt_benchmark) {
     rpc_url_original = strdup(rpc_url);
-    if (uses_flock()) {
+    if (uses_lunar()) {
       fprintf(stdout, "     RTM %.2lf%% Fee\n\n", donation_percent - 0.25);
     } else {
       fprintf(stdout, "     RTM %.2lf%% Fee\n\n", donation_percent);
